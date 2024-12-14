@@ -317,7 +317,7 @@ p {
 	transition: var(--transision);
 }
 
-.header-area .navbar-info .nav-link.active {
+.header-area .navbar-info .active a {
 	color: var(--black);
 	background-color: var(--background);
 }

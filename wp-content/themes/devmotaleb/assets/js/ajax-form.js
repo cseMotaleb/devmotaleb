@@ -1,4 +1,4 @@
-$(function () {
+jQuery(function ($) {
 
 	// Get the form.
 	var form = $('#contact-form');
@@ -17,10 +17,12 @@ $(function () {
 		// Submit the form using AJAX.
 		$.ajax({
 			type: 'POST',
-			url: $(form).attr('action'),
-			data: formData
-		})
-			.done(function (response) {
+			url: ajax_object.ajax_url, // Use WordPress AJAX URL from wp_localize_script
+			data: {
+				action: 'submit_contact_form', // The WordPress action
+				formData: formData // The serialized form data
+			},
+			success: function (response) {
 				// Make sure that the formMessages div has the 'success' class.
 				$(formMessages).removeClass('error');
 				$(formMessages).addClass('success');
@@ -31,12 +33,13 @@ $(function () {
 				// Clear the form.
 				$('#contact-form input,#contact-form textarea').val('');
 				$('#contact-form select[name="budget"]').prop('selectedIndex', 0);
-				// Remove success message after 2 seconds
+
+				// Remove success message after 5 seconds
 				setTimeout(function () {
 					$(formMessages).empty().removeClass('success');
 				}, 5000);
-			})
-			.fail(function (data) {
+			},
+			error: function (data) {
 				// Make sure that the formMessages div has the 'error' class.
 				$(formMessages).removeClass('success');
 				$(formMessages).addClass('error');
@@ -45,13 +48,15 @@ $(function () {
 				if (data.responseText !== '') {
 					$(formMessages).text(data.responseText);
 				} else {
-					$(formMessages).text('Oops! An error occured and your message could not be sent.');
+					$(formMessages).text('Oops! An error occurred and your message could not be sent.');
 				}
-				// Remove error message after 2 seconds
+
+				// Remove error message after 5 seconds
 				setTimeout(function () {
 					$(formMessages).empty().removeClass('error');
 				}, 5000);
-			});
+			}
+		});
 	});
 
 });

@@ -158,9 +158,50 @@ require get_template_directory() . '/inc/template-functions.php';
 require get_template_directory() . '/inc/customizer.php';
 
 /**
+ * Navwalker additions.
+ */
+require_once get_template_directory() . '/inc/class-wp-bootstrap-navwalker.php';
+/**
  * Load Jetpack compatibility file.
  */
 if ( defined( 'JETPACK__VERSION' ) ) {
 	require get_template_directory() . '/inc/jetpack.php';
 }
 
+function register_custom_menus() {
+    register_nav_menus(
+        array(
+            'header-menu' => __( 'Header Menu' )
+        )
+    );
+}
+add_action( 'init', 'register_custom_menus' );
+
+// Add an action for the AJAX request
+add_action( 'wp_ajax_submit_contact_form', 'handle_contact_form' );
+add_action( 'wp_ajax_nopriv_submit_contact_form', 'handle_contact_form' );
+
+function handle_contact_form() {
+    // Parse the form data
+    parse_str($_POST['formData'], $formData);
+
+    // Example: Perform validation or sending an email
+    if ( empty( $formData['name'] ) || empty( $formData['email'] ) ) {
+        echo 'Please fill out all required fields.';
+        wp_die(); // Important to stop the execution after response
+    }
+
+    // Send email or handle the data
+    $to = 'your-email@example.com'; // Replace with your email address
+    $subject = 'New Contact Form Submission';
+    $message = 'Name: ' . sanitize_text_field( $formData['name'] ) . "\n";
+    $message .= 'Email: ' . sanitize_email( $formData['email'] ) . "\n";
+    $message .= 'Message: ' . sanitize_textarea_field( $formData['message'] );
+
+    // Use WordPress mail function to send the email
+    wp_mail( $to, $subject, $message );
+
+    // Send a success response
+    echo 'Thank you for your message. We will get back to you soon!';
+    wp_die(); // WordPress requires this at the end of AJAX handlers
+}
